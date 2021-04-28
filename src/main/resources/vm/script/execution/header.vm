@@ -6,7 +6,7 @@
 
 startLog header
 
-info "testing something"
+info "testing"
 
 START=`date +%s`
 info "START date is ${START}"
