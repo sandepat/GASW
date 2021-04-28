@@ -6,6 +6,8 @@
 
 startLog header
 
+info "testing something"
+
 START=`date +%s`
 info "START date is ${START}"
 
