@@ -493,10 +493,10 @@ public class GaswParser extends DefaultHandler {
     public GaswInput getGaswInput(String applicationName, Map<String, String> inputsMap, String boutiquesFilePath, String executableName,HashMap<Integer, String> inputid , HashMap<Integer, String> outputid, String invocationString, 
     Map<String, String> resultDirectory, String jobId, String sourceFilePath, List<URI> DownloadFiles, String outputDirName)
             throws URISyntaxException, FileNotFoundException, IOException, GaswException, ParseException, SAXException {
+
         getArgument(executableName, inputid, outputid);
         List<String> parameters = new ArrayList<String>();
         List<GaswUpload> uploads = new ArrayList<GaswUpload>();
-        logger.info("inputsMapZZZZZZZZZZZZZZZZZ: " + inputsMap);
         
         for (GaswArgument argument : arguments) {
             StringBuilder param = new StringBuilder();
@@ -512,7 +512,7 @@ public class GaswParser extends DefaultHandler {
                     URI valueURI = new URI(
                         GaswUtil.isUri(value) ? value : LFN_PREFIX + value);
                     param.append(new File(valueURI.getPath()).getName());
-                    logger.info("ZZZZZZZZ" + valueURI);
+                    System.out.println("ANSI_BLUE" + "valueURI: " +valueURI );
                     downloads.add(valueURI);
                 } else {
                     // Need to escape special characters to avoid bash errors.
@@ -541,6 +541,7 @@ public class GaswParser extends DefaultHandler {
         }
         //System.out.println(ANSI_BLUE + "downloads: " + downloads.get(0) +ANSI_RESET);
         //This is a workaround and a temporary implementation
+        System.out.println("downloads: " + downloads);
         URI uri = downloads.get(0);
         String uriString = uri.toString();
         uriString = uriString.replace(".sh.tar.gz", ".json");
@@ -553,7 +554,8 @@ public class GaswParser extends DefaultHandler {
     public String getArgument(String executableName,HashMap<Integer, String> inputid , HashMap<Integer, String> outputid) throws FileNotFoundException, IOException, GaswException, ParseException, URISyntaxException, SAXException {
         String download = "lfn:/" + System.getProperty("user.dir") + "/"+ executableName; 
 
-        //downloads.add(new URI(download.replace("]", "").replace("[", "")));
+        downloads.add(new URI(download.replace("]", "").replace("[", "")));
+        System.out.println("ANSI_BLUE" + "downloads: " + downloads);
         inputArg = new GaswInputArg("results-directory", null, false);
         arguments.add(inputArg);
         inputsList.add("results-directory");
