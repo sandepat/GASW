@@ -55,51 +55,51 @@ public class JsonConfigurationFile {
 
     public static void appendJobConfiguration(String serviceCall, List<URI> downloads, String executableName,
     String invocationString, Map<String, String> envVariables, List<String> parameters, List<GaswUpload> uploads, String jobId, String applicationName, List<URI> DownloadFiles, String outputDirName) throws IOException, GaswException {
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    JsonObject jsonObject = new JsonObject();       
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonObject jsonObject = new JsonObject();       
 
-    if (executableName != null) {
-        String jsonFileName = (executableName.contains(".")) ? executableName.substring(0, executableName.lastIndexOf(".")) + ".json" : "";
-        List<URI> uploadUris = (uploads != null) ? uploads.stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
-        String invocationJson = jobId.substring(0, jobId.lastIndexOf(".")) + "-invocation.json";
+        if (executableName != null) {
+            String jsonFileName = (executableName.contains(".")) ? executableName.substring(0, executableName.lastIndexOf(".")) + ".json" : "";
+            List<URI> uploadUris = (uploads != null) ? uploads.stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
+            String invocationJson = jobId.substring(0, jobId.lastIndexOf(".")) + "-invocation.json";
 
-        applicationName = (applicationName != null) ? applicationName : ""; 
-        parameters = (parameters != null) ? parameters : new ArrayList<>();
-        envVariables = (envVariables != null) ? envVariables : new HashMap<>();
-        serviceCall = (serviceCall != null) ? serviceCall : "";
-        invocationString = (invocationString != null) ? invocationString : "";
-        jsonFileName = (jsonFileName != null) ? jsonFileName : "";
+            applicationName = (applicationName != null) ? applicationName : ""; 
+            parameters = (parameters != null) ? parameters : new ArrayList<>();
+            envVariables = (envVariables != null) ? envVariables : new HashMap<>();
+            serviceCall = (serviceCall != null) ? serviceCall : "";
+            invocationString = (invocationString != null) ? invocationString : "";
+            jsonFileName = (jsonFileName != null) ? jsonFileName : "";
 
-        Set<URI> uniqueDownloads = new HashSet<>(downloads);
-        downloads = new ArrayList<>(uniqueDownloads);
-        
-        Set<URI> uniqueDownloadFiles = new HashSet<>(DownloadFiles);
-        DownloadFiles = new ArrayList<>(uniqueDownloadFiles);
-                    
-        jsonObject.addProperty("applicationName", applicationName);
-        jsonObject.addProperty("jsonFileName", jsonFileName);
-        jsonObject.addProperty("jobId", jobId);
-        jsonObject.addProperty("invocationJson", invocationJson);
-        jsonObject.addProperty("serviceCall", serviceCall);
-        jsonObject.addProperty("downloads", downloads.toString());
-        jsonObject.addProperty("invocationString", invocationString);
-        jsonObject.addProperty("envVariables", envVariables.toString());
-        jsonObject.addProperty("parameters", parameters.toString());
-        jsonObject.addProperty("uploads", uploadUris.toString());
-        jsonObject.addProperty("downloadFiles", DownloadFiles.toString());
-        jsonObject.addProperty("outputDirName", outputDirName);
+            Set<URI> uniqueDownloads = new HashSet<>(downloads);
+            downloads = new ArrayList<>(uniqueDownloads);
+            
+            Set<URI> uniqueDownloadFiles = new HashSet<>(DownloadFiles);
+            DownloadFiles = new ArrayList<>(uniqueDownloadFiles);
+                        
+            jsonObject.addProperty("applicationName", applicationName);
+            jsonObject.addProperty("jsonFileName", jsonFileName);
+            jsonObject.addProperty("jobId", jobId);
+            jsonObject.addProperty("invocationJson", invocationJson);
+            jsonObject.addProperty("serviceCall", serviceCall);
+            jsonObject.addProperty("downloads", downloads.toString());
+            jsonObject.addProperty("invocationString", invocationString);
+            jsonObject.addProperty("envVariables", envVariables.toString());
+            jsonObject.addProperty("parameters", parameters.toString());
+            jsonObject.addProperty("uploads", uploadUris.toString());
+            jsonObject.addProperty("downloadFiles", DownloadFiles.toString());
+            jsonObject.addProperty("outputDirName", outputDirName);
 
-        JsonObject masterJsonObject = new JsonObject();
-        masterJsonObject.add("jobConfiguration", jsonObject);
+            JsonObject masterJsonObject = new JsonObject();
+            masterJsonObject.add("jobConfiguration", jsonObject);
 
-        Path jsonConfigurationFile = createJsonConfiguration(jobId);
-        try (FileWriter fileWriter = new FileWriter(jsonConfigurationFile.toFile())) {
-            gson.toJson(masterJsonObject, fileWriter);
-        } catch (IOException e) {
-            e.printStackTrace();
+            Path jsonConfigurationFile = createJsonConfiguration(jobId);
+            try (FileWriter fileWriter = new FileWriter(jsonConfigurationFile.toFile())) {
+                gson.toJson(masterJsonObject, fileWriter);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
-}
 
 
     public static void appendGaswConstants(JsonObject gaswConstantsObj, String jobId) throws IOException {
@@ -121,7 +121,7 @@ public class JsonConfigurationFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-}
+    }
     public static void appendGaswConfigurations(String jobId) throws GaswException, IOException {
         GaswConfiguration gaswConfig = GaswConfiguration.getInstance();
         PropertiesConfiguration config = gaswConfig.getPropertiesConfiguration();
@@ -149,7 +149,8 @@ public class JsonConfigurationFile {
         boolean minorStatusEnabled = gaswConfig.isMinorStatusEnabled();
         int minAvgDownloadThroughput = gaswConfig.getMinAvgDownloadThroughput();
         int defaultRetryCount = gaswConfig.getDefaultRetryCount();
-        
+        String apptainerPath = gaswConfig.getApptainerPath();
+        String boutiquesProvenanceDir = gaswConfig.getBoutiquesProvenanceDir();
 
         Path jsonConfigurationFile = createJsonConfiguration(jobId);
         String existingContent = Files.readString(jsonConfigurationFile);
@@ -179,6 +180,8 @@ public class JsonConfigurationFile {
         gaswConfiguration.addProperty("minorStatusEnabled", minorStatusEnabled);
         gaswConfiguration.addProperty("minAvgDownloadThroughput", minAvgDownloadThroughput);
         gaswConfiguration.addProperty("defaultRetryCount", defaultRetryCount);
+        gaswConfiguration.addProperty("apptainerPath", apptainerPath);
+        gaswConfiguration.addProperty("boutiquesProvenanceDir", boutiquesProvenanceDir);
         gaswConfiguration.addProperty("defaultExecutor", defaultExecutor);
         gaswConfiguration.addProperty("executorPlugins", executorPlugins.toString());
         gaswConfiguration.addProperty("listenerPlugins", listenerPlugins.toString());
@@ -196,7 +199,7 @@ public class JsonConfigurationFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    } 
+    }
 }
 
 
