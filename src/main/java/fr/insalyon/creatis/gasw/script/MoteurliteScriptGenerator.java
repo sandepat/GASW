@@ -98,7 +98,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
             String jsonFileName = (gaswInput.getExecutableName().contains(".")) ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json" : "";
-            List<URI> uploadURIs = (gaswInput.getUploads() != null) ? gaswInput.getUploads().stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
+            List<URI> uploadURI = (gaswInput.getUploads() != null) ? gaswInput.getUploads().stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
             String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
 
         config.put("minorStatusEnabled", String.valueOf(conf.isMinorStatusEnabled()));
@@ -122,7 +122,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          config.put("downloads", new ArrayList<>(gaswInput.getDownloadFiles()) {{ add(URI.create("file://var/www/html/workflows/SharedData/groups/Support/Applications/BasicGrep_moteur2/0.2/json/BasicGrep_moteur2.json")); }}.toString());
          config.put("uploads", gaswInput.getUploads().toString());
          config.put("jsonFileName", jsonFileName);
-         config.put("uploadURIs", uploadURIs.toString());
+         config.put("uploadURI", uploadURI.toString());
          config.put("invocationJson", invocationJson);
          }
  
