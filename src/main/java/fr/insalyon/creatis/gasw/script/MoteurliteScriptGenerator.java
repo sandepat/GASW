@@ -119,7 +119,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          config.put("minAvgDownloadThroughput",  String.valueOf(conf.getMinAvgDownloadThroughput())); 
          config.put("bdiiTimeout",  String.valueOf(GaswConstants.BDII_TIMEOUT));
          config.put("srmTimeout",  String.valueOf(GaswConstants.SRM_TIMEOUT));
-         config.put("downloads", new ArrayList<>(gaswInput.getDownloads()) {{ addAll(gaswInput.getDownloadFiles()); }}.toString());
+         config.put("downloads", new ArrayList<>(gaswInput.getDownloadFiles()) {{ add(URI.create("file://var/www/html/workflows/SharedData/groups/Support/Applications/BasicGrep_moteur2/0.2/json/BasicGrep_moteur2.json")); }}.toString());
          config.put("uploads", gaswInput.getUploads().toString());
          config.put("jsonFileName", jsonFileName);
          config.put("uploadURIs", uploadURIs.toString());
