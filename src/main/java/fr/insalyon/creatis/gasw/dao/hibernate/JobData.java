@@ -32,15 +32,17 @@
  */
 package fr.insalyon.creatis.gasw.dao.hibernate;
 
-import fr.insalyon.creatis.gasw.bean.Job;
-import fr.insalyon.creatis.gasw.dao.DAOException;
-import fr.insalyon.creatis.gasw.dao.JobDAO;
-import fr.insalyon.creatis.gasw.execution.GaswStatus;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+
+import fr.insalyon.creatis.gasw.bean.Job;
+import fr.insalyon.creatis.gasw.dao.DAOException;
+import fr.insalyon.creatis.gasw.dao.JobDAO;
+import fr.insalyon.creatis.gasw.execution.GaswStatus;
 
 /**
  *
@@ -290,6 +292,7 @@ public class JobData implements JobDAO {
         try {
             Session session = sessionFactory.openSession();
             session.beginTransaction();
+            System.out.println(parameters + "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
             List<Job> list = (List<Job>) session.getNamedQuery("Job.findByParameters")
                     .setString("parameters", parameters)
                     .list();
