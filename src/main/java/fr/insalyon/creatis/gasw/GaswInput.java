@@ -51,25 +51,18 @@ public class GaswInput {
     private String invocationString;
     private String jobId;
     private String applicationName;
-    private static String sourceFilePath;
     private List<URI> downloadFiles;
-    private String outputDirName;
-    private Boolean moteurlite = false;
+    private Boolean moteurLiteEnabled = false;
+
     /**
-     *
      * @param executableName Name of the executable file.
-     * @param parameters List of parameters associated with the command.
-     * @param downloads List of input files to be downloaded in the worker node.
-     * @param uploads List of output files to be uploaded to a Storage Element.
-     * @param gaswVariables Map of GASW variables.
-     * @param envVariables Map of environment variables.
-     * @param invocationString String representation of the invocation
-     * @param jobId
-     * @param sourceFilePath
-     * @param applicationName
-     * @param outputDirName
-     * @param downloadFiles
+     * @param parameters     List of parameters associated with the command.
+     * @param downloads      List of input files to be downloaded in the worker node.
+     * @param uploads        List of output files to be uploaded to a Storage Element.
+     * @param gaswVariables  Map of GASW variables.
+     * @param envVariables   Map of environment variables.
      */
+
     public GaswInput(String executableName, List<String> parameters,
             List<URI> downloads, List<GaswUpload> uploads,
             Map<String, String> gaswVariables, Map<String, String> envVariables) {
@@ -82,10 +75,22 @@ public class GaswInput {
         this.envVariables = envVariables;
     }
 
+    /**
+     * @param executableName Name of the executable file.
+     * @param parameters List of parameters associated with the command.
+     * @param downloads List of input files to be downloaded in the worker node.
+     * @param uploads List of output files to be uploaded to a Storage Element.
+     * @param gaswVariables Map of GASW variables.
+     * @param envVariables Map of environment variables.
+     * @param invocationString String representation of the invocation
+     * @param jobId
+     * @param applicationName
+     * @param downloadFiles
+     */
+
     public GaswInput(String applicationName, String executableName2, List<String> parameters2, List<URI> downloads2,
             List<GaswUpload> uploads2, Map<String, String> gaswVariables2, Map<String, String> envVariables2,
-            String invocationString, String jobId, String sourceFilePath, List<URI> downloadFiles,
-            String outputDirName) {
+            String invocationString, String jobId, List<URI> downloadFiles) {
         
         this.executableName = executableName2;
         this.parameters = parameters2;
@@ -95,14 +100,10 @@ public class GaswInput {
         this.envVariables = envVariables2;
         this.invocationString = invocationString;
         this.jobId = jobId;
-        this.sourceFilePath = sourceFilePath;
         this.applicationName = applicationName;
         this.downloadFiles = downloadFiles;
-        this.outputDirName = outputDirName;
-        this.moteurlite = true;
+        this.moteurLiteEnabled = true;
     }
-
- 
 
     /**
      * Adds a parameter to the list of parameters.
@@ -187,10 +188,6 @@ public class GaswInput {
         return jobId;
     }
 
-    public static String getSourceFilePath(){
-        return sourceFilePath;
-    }
-
     public String getApplicationName(){
         return applicationName;
     }
@@ -199,11 +196,7 @@ public class GaswInput {
         return downloadFiles;
     }
 
-    public String getOutputDirName(){
-        return outputDirName;
-    }
-
-    public Boolean getMoteurliteStatus(){
-        return moteurlite;
+    public Boolean isMoteurLiteEnabled(){
+        return moteurLiteEnabled;
     }
 }

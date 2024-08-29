@@ -112,7 +112,6 @@ public class GaswConfiguration {
     private List<Object> listenerPluginsURI;
     private List<ListenerPlugin> listenerPlugins;
     private SessionFactory sessionFactory;
-    private String workflowID;
 
     /**
      * Gets an instance of GASW configuration class.
@@ -148,7 +147,6 @@ public class GaswConfiguration {
         try {
             executionPath = new File("").getAbsolutePath();
             simulationID = executionPath.substring(executionPath.lastIndexOf("/") + 1);
-            workflowID = executionPath.substring(executionPath.lastIndexOf("/") + 1);
 
             config = new PropertiesConfiguration(new File(configDir + "/" + configFile));
 
@@ -470,9 +468,5 @@ public class GaswConfiguration {
 
     public int getDefaultRetryCount() {
         return defaultRetryCount;
-    }
-
-    public String getWorkflowID() {
-        return workflowID;
     }
 }

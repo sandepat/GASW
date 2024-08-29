@@ -130,7 +130,6 @@ public class JsonConfigurationFile {
         SessionFactory sessionFactory = gaswConfig.getSessionFactory();
         int defaultSleeptime = gaswConfig.getDefaultSleeptime();
         String simulationID = gaswConfig.getSimulationID();
-        String workflowID = gaswConfig.getWorkflowID();
         String executionPath = gaswConfig.getExecutionPath();
         String defaultBackgroundScript = gaswConfig.getDefaultBackgroundScript();
         int defaultCPUTime = gaswConfig.getDefaultCPUTime();
@@ -162,7 +161,6 @@ public class JsonConfigurationFile {
         JsonObject gaswConfiguration = new JsonObject();
         gaswConfiguration.addProperty("defaultSleeptime", defaultSleeptime);
         gaswConfiguration.addProperty("simulationID", simulationID);
-        gaswConfiguration.addProperty("workflowID", workflowID);
         gaswConfiguration.addProperty("executionPath", executionPath);
         gaswConfiguration.addProperty("defaultBackgroundScript", defaultBackgroundScript);
         gaswConfiguration.addProperty("defaultCPUTime", defaultCPUTime);

@@ -42,9 +42,6 @@ import fr.insalyon.creatis.gasw.GaswException;
 import fr.insalyon.creatis.gasw.GaswUpload;
 import fr.insalyon.creatis.gasw.util.VelocityUtil;
 
-
-
-
 /**
  *
  * @author Rafael Ferreira da Silva
@@ -137,9 +134,9 @@ public class ExecutionGenerator {
      */
     public String loadUploadTest(List<GaswUpload> uploads) throws Exception {
 
-            if (!uploads.isEmpty()) {
+        if (!uploads.isEmpty()) {
 
-                GaswUpload upload = uploads.get(0);
+            GaswUpload upload = uploads.get(0);
             VelocityUtil velocity = new VelocityUtil("vm/script/execution/uploadTest.vm");
 
             velocity.put("cacheDir", GaswConstants.CACHE_DIR);
@@ -172,7 +169,6 @@ public class ExecutionGenerator {
      *
      * @param serviceCall
      * @param downloads The list of URIs to be downloaded
-     * @param invocation
      * @return A string containing the code
      * @throws Exception
      */
@@ -187,22 +183,11 @@ public class ExecutionGenerator {
         return velocity.merge().toString();
     }
 
-    public String loadInputs(String executableName, String invocationString) throws Exception {
-
-        VelocityUtil velocity = new VelocityUtil("vm/script/execution/inputs.vm");
-
-        velocity.put("executableName", executableName);
-        velocity.put("invocationString", invocationString);
-
-        return velocity.merge().toString();
-    }
-
     /**
      * Generates the code executing the application command line.
      *
      * @param serviceCall
      * @param parameters List of parameters
-     * @param executableName
      * @return
      * @throws Exception
      */

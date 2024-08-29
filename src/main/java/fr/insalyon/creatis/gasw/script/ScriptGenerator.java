@@ -61,7 +61,7 @@ public class ScriptGenerator {
         return instance;
     }
 
-    protected ScriptGenerator() throws GaswException {
+    private ScriptGenerator() throws GaswException {
 
         basic = BasicGenerator.getInstance();
         dataManagement = DataManagementGenerator.getInstance();

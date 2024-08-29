@@ -57,7 +57,6 @@ public abstract class GaswSubmit {
     protected String scriptName;
     protected String jdlName;
     protected GaswMinorStatusServiceGenerator minorStatusServiceGenerator;
-    protected boolean moteurliteStatus = false;
 
     /**
      *
@@ -74,10 +73,7 @@ public abstract class GaswSubmit {
         if (GaswConfiguration.getInstance().isFailOverEnabled()) {
             FailOver.getInstance().addData(gaswInput.getDownloads());
         }
-        System.out.println("moteurlite status: " + gaswInput.getMoteurliteStatus());
-        if (gaswInput.getMoteurliteStatus() != null && gaswInput.getMoteurliteStatus() == true) {
-            moteurliteStatus = true;
-        }
+        logger.info("moteurlite status: " + gaswInput.isMoteurLiteEnabled());
     }
 
     /**
@@ -97,11 +93,13 @@ public abstract class GaswSubmit {
      */
     protected String generateScript() throws GaswException, IOException {
 
-        String script = ScriptGenerator.getInstance().generateScript(
-                gaswInput, minorStatusServiceGenerator);
-        
-        if (moteurliteStatus) {
+        String script;
+
+        if (gaswInput.isMoteurLiteEnabled()) {
             script = MoteurliteScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
+        } 
+        else {
+            script = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
         }
         return publishScript(gaswInput.getExecutableName(), script);
     }
@@ -120,18 +118,15 @@ public abstract class GaswSubmit {
             if (!scriptsDir.exists()) {
                 scriptsDir.mkdir();
             }
-            
-            if (moteurliteStatus) {
+
+            if (gaswInput.isMoteurLiteEnabled()) {
                 fileName = gaswInput.getJobId(); 
                 writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
                 publishInvocation(fileName);
-            }
-
-
-            else {
-            fileName = symbolicName.replace(" ", "-");
-            fileName += "-" + System.nanoTime() + ".sh";
-            writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
+            } else {
+                fileName = symbolicName.replace(" ", "-");
+                fileName += "-" + System.nanoTime() + ".sh";
+                writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
             }
             return fileName;
 
@@ -180,16 +175,17 @@ public abstract class GaswSubmit {
         fstream.close();
     }
 
-    private void publishInvocation(String fileName) {
+    private void publishInvocation(String fileName) throws IOException {
         try {
-            File invoDir = new File(GaswConstants.INV_DIR);
+            File invoDir = new File(GaswConstants.INVOCATION_DIR);
             if (!invoDir.exists()) {
                 invoDir.mkdir();
             }
             String invoFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "-invocation.json";
             writeToFile(invoDir.getAbsolutePath() + "/" + invoFileName, gaswInput.getInvocationString());
         } catch (IOException ex) {
-            logger.error(ex);
+            logger.error("Failed to publish invocation", ex);
+            throw ex;
         }
     } 
 }
