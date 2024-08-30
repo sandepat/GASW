@@ -43,7 +43,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,63 +69,83 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
  
  public class MoteurliteScriptGenerator {
  
-    private static final Logger logger = Logger.getLogger("fr.insalyon.creatis.gasw");
-    private static MoteurliteScriptGenerator instance;
-    private GaswConfiguration conf;
+     private static final Logger logger = Logger.getLogger("fr.insalyon.creatis.gasw");
+     private static MoteurliteScriptGenerator instance;
+     private GaswConfiguration conf;
  
      public synchronized static MoteurliteScriptGenerator getInstance() throws GaswException {
-        if (instance == null) {
-            instance = new MoteurliteScriptGenerator();
-        }
-        return instance;
-    }
+         if (instance == null) {
+             instance = new MoteurliteScriptGenerator();
+         }
+         return instance;
+     }
  
      private MoteurliteScriptGenerator() throws GaswException {
          conf = GaswConfiguration.getInstance();
      }
  
-     public String generateScript(GaswInput gaswInput, 
-     GaswMinorStatusServiceGenerator minorStatusService) throws IOException, GaswException {
+     public String generateScript(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+             throws IOException, GaswException {
          generateRuntimeConfiguration(gaswInput, minorStatusService);
          return readScriptFromFile();
      }
  
      // Additional methods for runtime configuration
-     public void generateRuntimeConfiguration(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService) throws IOException, GaswException {
-        //generateJobConfiguration(gaswInput, minorStatusService);
-        generateConfig(gaswInput, minorStatusService); 
+     public void generateRuntimeConfiguration(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+             throws IOException, GaswException {
+         generateConfig(gaswInput, minorStatusService);
      }
  
-     private void generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService) throws IOException {
+     private void generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+             throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
-            String jsonFileName = (gaswInput.getExecutableName().contains(".")) ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json" : "";
-            List<URI> uploadURI = (gaswInput.getUploads() != null) ? gaswInput.getUploads().stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
-            String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
-
-        config.put("minorStatusEnabled", String.valueOf(conf.isMinorStatusEnabled()));
-         config.put("serviceCall", minorStatusService.getServiceCall());
-         config.put("defaultEnvironment", conf.getDefaultEnvironment());
-         config.put("voDefaultSE", conf.getVoDefaultSE());
-         config.put("voUseCloseSE", conf.getVoUseCloseSE());
-         config.put("boshCVMFSPath", conf.getBoshCVMFSPath());
-         config.put("boutiquesProvenanceDir", conf.getBoutiquesProvenanceDir());
-         config.put("containersCVMFSPath", conf.getContainersCVMFSPath());
-         config.put("udockerTag", conf.getUdockerTag());
-         config.put("simulationID", conf.getSimulationID());
-         config.put("cacheDir", GaswConstants.CACHE_DIR);
-         config.put("backgroundScript", conf.getDefaultBackgroundScript());
-         config.put("nrep", String.valueOf(GaswConstants.numberOfReplicas));
-         config.put("cacheFile", GaswConstants.CACHE_FILE);
-         config.put("timeout",  String.valueOf(GaswConstants.CONNECT_TIMEOUT));
-         config.put("minAvgDownloadThroughput",  String.valueOf(conf.getMinAvgDownloadThroughput())); 
-         config.put("bdiiTimeout",  String.valueOf(GaswConstants.BDII_TIMEOUT));
-         config.put("srmTimeout",  String.valueOf(GaswConstants.SRM_TIMEOUT));
-         config.put("downloads", new ArrayList<>(gaswInput.getDownloads()) {{ addAll(gaswInput.getDownloadFiles()); }}.toString());
-         config.put("uploads", gaswInput.getUploads().toString());
-         config.put("jsonFileName", jsonFileName);
-         config.put("uploadURI", uploadURI.toString());
-         config.put("invocationJson", invocationJson);
+             String jsonFileName = (gaswInput.getExecutableName().contains("."))
+                     ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json"
+                     : "";
+             List<URI> uploadURI = (gaswInput.getUploads() != null)
+                     ? gaswInput.getUploads().stream().map(GaswUpload::getURI).collect(Collectors.toList())
+                     : new ArrayList<>();
+             String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
+ 
+             // Generate the timestamp
+             String timestamp = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
+ 
+             // Append the timestamp directory to the upload URI
+             List<URI> uploadURIWithTimestamp = uploadURI.stream().map(uri -> {
+                 try {
+                     return new URI(uri.toString() + "/" + timestamp);
+                 } catch (Exception e) {
+                     logger.error("Error appending timestamp to URI", e);
+                     return uri;
+                 }
+             }).collect(Collectors.toList());
+ 
+             config.put("minorStatusEnabled", String.valueOf(conf.isMinorStatusEnabled()));
+             config.put("serviceCall", minorStatusService.getServiceCall());
+             config.put("defaultEnvironment", conf.getDefaultEnvironment());
+             config.put("voDefaultSE", conf.getVoDefaultSE());
+             config.put("voUseCloseSE", conf.getVoUseCloseSE());
+             config.put("boshCVMFSPath", conf.getBoshCVMFSPath());
+             config.put("boutiquesProvenanceDir", conf.getBoutiquesProvenanceDir());
+             config.put("containersCVMFSPath", conf.getContainersCVMFSPath());
+             config.put("udockerTag", conf.getUdockerTag());
+             config.put("simulationID", conf.getSimulationID());
+             config.put("cacheDir", GaswConstants.CACHE_DIR);
+             config.put("backgroundScript", conf.getDefaultBackgroundScript());
+             config.put("nrep", String.valueOf(GaswConstants.numberOfReplicas));
+             config.put("cacheFile", GaswConstants.CACHE_FILE);
+             config.put("timeout", String.valueOf(GaswConstants.CONNECT_TIMEOUT));
+             config.put("minAvgDownloadThroughput", String.valueOf(conf.getMinAvgDownloadThroughput()));
+             config.put("bdiiTimeout", String.valueOf(GaswConstants.BDII_TIMEOUT));
+             config.put("srmTimeout", String.valueOf(GaswConstants.SRM_TIMEOUT));
+             config.put("downloads", new ArrayList<>(gaswInput.getDownloads()) {{
+                 addAll(gaswInput.getDownloadFiles());
+             }}.toString());
+             config.put("uploads", gaswInput.getUploads().toString());
+             config.put("jsonFileName", jsonFileName);
+             config.put("uploadURI", uploadURIWithTimestamp.toString()); // Update this line to use uploadURI with timestamp
+             config.put("invocationJson", invocationJson);
          }
  
          for (String key : gaswInput.getEnvVariables().keySet()) {
@@ -133,8 +155,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          writeConfig(gaswInput.getJobId(), config);
      }
  
- 
-     public void writeConfig(String jobId, Map<String,String> config) throws IOException {
+     public void writeConfig(String jobId, Map<String, String> config) throws IOException {
          StringBuilder string = new StringBuilder();
  
          for (String key : config.keySet()) {
@@ -155,8 +176,8 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              confDir.mkdir();
          }
          jobId = jobId.endsWith(".sh") ? jobId.substring(0, jobId.length() - 3) : jobId;
-         Path jsonConfigurationFile = Paths.get(confDir + "/"+ jobId+"-configuration.sh");
-        
+         Path jsonConfigurationFile = Paths.get(confDir + "/" + jobId + "-configuration.sh");
+ 
          // Check if the file exists, create it if not
          if (!Files.exists(jsonConfigurationFile)) {
              Files.createFile(jsonConfigurationFile);
@@ -167,8 +188,8 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
      private String readScriptFromFile() throws IOException {
          ClassLoader classLoader = getClass().getClassLoader();
          try (InputStream inputStream = classLoader.getResourceAsStream("script.sh");
-             Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-         return scanner.useDelimiter("\\A").next();
+              Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+             return scanner.useDelimiter("\\A").next();
          }
      }
  }
