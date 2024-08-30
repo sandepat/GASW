@@ -495,7 +495,7 @@ public class GaswParser extends DefaultHandler {
             content.append(separator).append(f.getName());
         }
     }
-    
+
     public GaswInput getGaswInput(String applicationName, Map<String, String> inputsMap, String executableName,HashMap<Integer, String> inputid , HashMap<Integer, String> outputid, String invocationString, 
     Map<String, String> resultDirectory, String jobId, List<URI> DownloadFiles, String boutiquesFilePath)
             throws URISyntaxException, FileNotFoundException, IOException, GaswException, SAXException {
@@ -515,6 +515,8 @@ public class GaswParser extends DefaultHandler {
             }
             if (argument.getHookup() == GaswArgument.Hookup.Input) {
                 String value = inputsMap.get(argument.getName());
+                logger.info("inputMaps:" + inputsMap);
+                logger.info("Value:" + value);
                 if (argument.getType() == GaswArgument.Type.URI) {
                     // If the value already is a URI, use it as is.  If not, it
                     // is a lfn and the prefix is added.

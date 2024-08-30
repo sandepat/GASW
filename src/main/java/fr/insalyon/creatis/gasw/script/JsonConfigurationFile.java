@@ -60,7 +60,7 @@ public class JsonConfigurationFile {
 
         if (executableName != null) {
             String jsonFileName = (executableName.contains(".")) ? executableName.substring(0, executableName.lastIndexOf(".")) + ".json" : "";
-            List<URI> uploadUris = (uploads != null) ? uploads.stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
+            List<URI> uploadUri = (uploads != null) ? uploads.stream().map(GaswUpload::getURI).collect(Collectors.toList()) : new ArrayList<>();
             String invocationJson = jobId.substring(0, jobId.lastIndexOf(".")) + "-invocation.json";
 
             applicationName = (applicationName != null) ? applicationName : ""; 
@@ -85,7 +85,7 @@ public class JsonConfigurationFile {
             jsonObject.addProperty("invocationString", invocationString);
             jsonObject.addProperty("envVariables", envVariables.toString());
             jsonObject.addProperty("parameters", parameters.toString());
-            jsonObject.addProperty("uploads", uploadUris.toString());
+            jsonObject.addProperty("uploads", uploadUri.toString());
             jsonObject.addProperty("downloadFiles", DownloadFiles.toString());
             jsonObject.addProperty("outputDirName", outputDirName);
 
