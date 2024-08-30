@@ -184,7 +184,6 @@ public class GaswParser extends DefaultHandler {
             inputArg = new GaswInputArg(name, option, implicit);
             arguments.add(inputArg);
             inputsList.add(name);
-            System.out.println("inputArg.getName() " +inputArg.getName());
 
         } else if (localName.equals("access")) {
 
@@ -584,13 +583,11 @@ public class GaswParser extends DefaultHandler {
             inputArg = new GaswInputArg("results-directory", null, false);
             arguments.add(inputArg);
             inputsList.add("results-directory");
-            System.out.println(ANSI_RED + "inputArg: " + inputArg + ANSI_RESET);
 
             for (int i = 0; i < inputid.size(); i++) {
                 inputArg = new GaswInputArg(inputid.get(i), "--" + inputid.get(i), false);
                 arguments.add(inputArg);
                 inputsList.add(inputid.get(i));
-                System.out.println(ANSI_RED + "inputArg.getName() " + inputArg.getName());
             }
 
             for (int i = 0; i < outputid.size(); i++) {

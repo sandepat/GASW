@@ -292,7 +292,6 @@ public class JobData implements JobDAO {
         try {
             Session session = sessionFactory.openSession();
             session.beginTransaction();
-            System.out.println(parameters + "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
             List<Job> list = (List<Job>) session.getNamedQuery("Job.findByParameters")
                     .setString("parameters", parameters)
                     .list();
