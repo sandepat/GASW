@@ -38,6 +38,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -553,39 +554,62 @@ public class GaswParser extends DefaultHandler {
                 gaswVariables, envVariables, invocationString, jobId, DownloadFiles);
     }
 
-    public String getArgument(String executableName, HashMap<Integer, String> inputid, HashMap<Integer, String> outputid) throws FileNotFoundException, IOException, GaswException, URISyntaxException, SAXException {
-        String download = "lfn:/" + System.getProperty("user.dir") + "/" + executableName;
-    
-        downloads.add(new URI(download.replace("]", "").replace("[", "")));
-        inputArg = new GaswInputArg("results-directory", null, false);
-        arguments.add(inputArg);
-        inputsList.add("results-directory");
-        System.out.println(ANSI_RED + "inputArg: " + inputArg + ANSI_RESET);
-    
-        for (int i = 0; i < inputid.size(); i++) {
-            inputArg = new GaswInputArg(inputid.get(i), "--" + inputid.get(i), false);
-            arguments.add(inputArg);
-            inputsList.add(inputid.get(i));
-            System.out.println(ANSI_RED + "inputArg.getName() " + inputArg.getName());
-        }
-    
-        for (int i = 0; i < outputid.size(); i++) {
-            outputArg = new GaswOutputArg(outputid.get(i), "--" + outputid.get(i), false);
-            String templateValue = "$prefix1$dir1/$na1";
+        public String getArgument(String executableName, HashMap<Integer, String> inputid, HashMap<Integer, String> outputid) 
+                throws FileNotFoundException, IOException, GaswException, URISyntaxException, SAXException {
 
-            Set<String> stripExtensions = new HashSet<>();
-            outputArg.setTemplate(true);
-    
-            if (templateValue.contains("$rep-")) {
-                outputArg.setReplicas(new Integer(templateValue.substring(templateValue.lastIndexOf("-") + 1)));
-                templateValue = templateValue.replaceAll("\\$rep-[0-9]*", "");
+            // Check the value of LAB_DEFAULT_EXECUTOR
+            String executorType = GaswConstants.LAB_DEFAULT_EXECUTOR;
+            String download;
+
+            // Check if the executor is DIRAC or local
+            if ("DIRAC".equalsIgnoreCase(executorType)) {
+                // If executor is DIRAC, construct the download string using the lfn prefix
+                download = "lfn:/" + System.getProperty("user.dir") + "/" + executableName;
+            } else {
+                // If executor is local, use the executable name directly and make it a symlink
+                String workflowFile = System.getProperty("user.dir") + "/workflow.json";
+                download = "file:/" + workflowFile;
+
+                // Create a symlink for the executableName pointing to the workflow.json file
+                File symlink = new File(System.getProperty("user.dir"), executableName);
+                File targetFile = new File(workflowFile);
+                if (!symlink.exists()) {
+                    Files.createSymbolicLink(symlink.toPath(), targetFile.toPath());
+                }
             }
-    
-            outputArg.setTemplateParts(templateParts(templateValue, inputsList, stripExtensions));
-            outputArg.setReplicas(GaswConstants.numberOfReplicas);
-            arguments.add(outputArg);
-            inputsList.add(outputid.get(i));
+
+            // Add the constructed download URI to the downloads list
+            downloads.add(new URI(download.replace("]", "").replace("[", "")));
+
+            inputArg = new GaswInputArg("results-directory", null, false);
+            arguments.add(inputArg);
+            inputsList.add("results-directory");
+            System.out.println(ANSI_RED + "inputArg: " + inputArg + ANSI_RESET);
+
+            for (int i = 0; i < inputid.size(); i++) {
+                inputArg = new GaswInputArg(inputid.get(i), "--" + inputid.get(i), false);
+                arguments.add(inputArg);
+                inputsList.add(inputid.get(i));
+                System.out.println(ANSI_RED + "inputArg.getName() " + inputArg.getName());
+            }
+
+            for (int i = 0; i < outputid.size(); i++) {
+                outputArg = new GaswOutputArg(outputid.get(i), "--" + outputid.get(i), false);
+                String templateValue = "$prefix1$dir1/$na1";
+
+                Set<String> stripExtensions = new HashSet<>();
+                outputArg.setTemplate(true);
+
+                if (templateValue.contains("$rep-")) {
+                    outputArg.setReplicas(new Integer(templateValue.substring(templateValue.lastIndexOf("-") + 1)));
+                    templateValue = templateValue.replaceAll("\\$rep-[0-9]*", "");
+                }
+
+                outputArg.setTemplateParts(templateParts(templateValue, inputsList, stripExtensions));
+                outputArg.setReplicas(GaswConstants.numberOfReplicas);
+                arguments.add(outputArg);
+                inputsList.add(outputid.get(i));
+            }
+            return executableName;
         }
-        return executableName;
-    }
-}
+        }
