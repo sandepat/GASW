@@ -36,6 +36,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
@@ -43,7 +47,7 @@ import fr.insalyon.creatis.gasw.GaswConfiguration;
 import fr.insalyon.creatis.gasw.GaswConstants;
 import fr.insalyon.creatis.gasw.GaswException;
 import fr.insalyon.creatis.gasw.GaswInput;
-import fr.insalyon.creatis.gasw.script.MoteurliteScriptGenerator;
+import fr.insalyon.creatis.gasw.script.MoteurliteConfigGenerator;
 import fr.insalyon.creatis.gasw.script.ScriptGenerator;
 
 /**
@@ -91,49 +95,31 @@ public abstract class GaswSubmit {
      * @throws GaswException
      * @throws IOException 
      */
-    protected String generateScript() throws GaswException, IOException {
-
-        String script;
+    protected void generateScript() throws GaswException, IOException {
 
         if (gaswInput.isMoteurLiteEnabled()) {
-            script = MoteurliteScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
+            String scriptMoteurlite;
+            String invocationMoteurlite;
+            Map<String, String> configMoteurlite;
+            scriptMoteurlite = readScriptFromResources();
+            invocationMoteurlite = gaswInput.getInvocationString();
+            configMoteurlite = MoteurliteConfigGenerator.getInstance().generateConfig(gaswInput, minorStatusServiceGenerator);
+            publishConfiguration(gaswInput.getJobId(), configMoteurlite);
+            publishInvocation(gaswInput.getJobId(), invocationMoteurlite);
+            publishScript(gaswInput.getExecutableName(), scriptMoteurlite);
+            
         } 
         else {
-            script = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
+            String scriptMoteur;
+            scriptMoteur = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
+            publishScript(gaswInput.getExecutableName(), scriptMoteur);
         }
-        return publishScript(gaswInput.getExecutableName(), script);
     }
 
-    /**
-     *
-     * @param symbolicName Symbolic name of the execution.
-     * @param script Generated script to be saved in a file.
-     * @return Name of the script file.
-     */
-    private String publishScript(String symbolicName, String script) {
-        String fileName = null;
-
-        try {
-            File scriptsDir = new File(GaswConstants.SCRIPT_ROOT);
-            if (!scriptsDir.exists()) {
-                scriptsDir.mkdir();
-            }
-
-            if (gaswInput.isMoteurLiteEnabled()) {
-                fileName = gaswInput.getJobId(); 
-                writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-                publishInvocation(fileName);
-            } else {
-                fileName = symbolicName.replace(" ", "-");
-                fileName += "-" + System.nanoTime() + ".sh";
-                writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-            }
-            return fileName;
-
-        } catch (IOException ex) {
-            logger.error(ex);
-            return null;
-        }
+    private String publishScript(String symbolicName, String script) throws IOException {
+        String fileName = symbolicName.replace(" ", "-") + ".sh";
+        writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
+        return fileName;
     }
 
     /**
@@ -175,17 +161,35 @@ public abstract class GaswSubmit {
         fstream.close();
     }
 
-    private void publishInvocation(String fileName) throws IOException {
-        try {
-            File invoDir = new File(GaswConstants.INVOCATION_DIR);
-            if (!invoDir.exists()) {
-                invoDir.mkdir();
-            }
-            String invoFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "-invocation.json";
-            writeToFile(invoDir.getAbsolutePath() + "/" + invoFileName, gaswInput.getInvocationString());
-        } catch (IOException ex) {
-            logger.error("Failed to publish invocation", ex);
-            throw ex;
+    private String readScriptFromResources() throws IOException {
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("script.sh");
+             Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
+            return scanner.useDelimiter("\\A").next();
         }
-    } 
+}
+    private void publishConfiguration(String jobId, Map<String, String> config) throws IOException {
+        StringBuilder string = new StringBuilder();
+        for (String key : config.keySet()) {
+            string.append(key).append("=\"").append(config.get(key)).append("\"\n");
+        }
+
+        File confDir = new File(GaswConstants.CONFIG_DIR);
+        if (!confDir.exists()) {
+            confDir.mkdir();
+        }
+
+        File configFile = new File(confDir, jobId + "-configuration.sh");
+        writeToFile(configFile.getAbsolutePath(), string.toString());
+
+    }
+
+    private void publishInvocation(String jobId, String invocationMoteurlite) throws IOException {
+        File invoDir = new File(GaswConstants.INVOCATION_DIR);
+        if (!invoDir.exists()) {
+            invoDir.mkdir();
+        }
+
+        String invoFileName = jobId.substring(0, jobId.lastIndexOf(".")) + "-invocation.json";
+        writeToFile(invoDir.getAbsolutePath() + "/" + invoFileName, invocationMoteurlite);
+    }
 }

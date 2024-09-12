@@ -34,22 +34,14 @@
 
  package fr.insalyon.creatis.gasw.script;
 
- import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+ import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -67,36 +59,24 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
   * 
   */
  
- public class MoteurliteScriptGenerator {
+ public class MoteurliteConfigGenerator {
  
      private static final Logger logger = Logger.getLogger("fr.insalyon.creatis.gasw");
-     private static MoteurliteScriptGenerator instance;
+     private static MoteurliteConfigGenerator instance;
      private GaswConfiguration conf;
  
-     public synchronized static MoteurliteScriptGenerator getInstance() throws GaswException {
+     public synchronized static MoteurliteConfigGenerator getInstance() throws GaswException {
          if (instance == null) {
-             instance = new MoteurliteScriptGenerator();
+             instance = new MoteurliteConfigGenerator();
          }
          return instance;
      }
  
-     private MoteurliteScriptGenerator() throws GaswException {
+     private MoteurliteConfigGenerator() throws GaswException {
          conf = GaswConfiguration.getInstance();
      }
  
-     public String generateScript(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
-             throws IOException, GaswException {
-         generateRuntimeConfiguration(gaswInput, minorStatusService);
-         return readScriptFromFile();
-     }
- 
-     // Additional methods for runtime configuration
-     public void generateRuntimeConfiguration(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
-             throws IOException, GaswException {
-         generateConfig(gaswInput, minorStatusService);
-     }
- 
-     private void generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+     public Map<String, String> generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
@@ -144,7 +124,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              }}.toString());
              config.put("uploads", gaswInput.getUploads().toString());
              config.put("jsonFileName", jsonFileName);
-             config.put("uploadURI", uploadURIWithTimestamp.toString()); // Update this line to use uploadURI with timestamp
+             config.put("uploadURI", uploadURIWithTimestamp.toString()); 
              config.put("invocationJson", invocationJson);
          }
  
@@ -152,45 +132,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put(key, gaswInput.getEnvVariables().get(key));
          }
  
-         writeConfig(gaswInput.getJobId(), config);
+         return config;
      }
  
-     public void writeConfig(String jobId, Map<String, String> config) throws IOException {
-         StringBuilder string = new StringBuilder();
- 
-         for (String key : config.keySet()) {
-             string.append(key).append("=\"").append(config.get(key)).append("\"\n");
-         }
-         Path configFile = createJsonConfiguration(jobId);
-         try (FileWriter fileWriter = new FileWriter(configFile.toFile())) {
-             fileWriter.write(string.toString());
-         } catch (IOException e) {
-             throw e;
-         }
-     }
- 
-     public Path createJsonConfiguration(String jobId) throws IOException {
-         // Specify the file path
-         File confDir = new File(GaswConstants.CONFIG_DIR);
-         if (!confDir.exists()) {
-             confDir.mkdir();
-         }
-         jobId = jobId.endsWith(".sh") ? jobId.substring(0, jobId.length() - 3) : jobId;
-         Path jsonConfigurationFile = Paths.get(confDir + "/" + jobId + "-configuration.sh");
- 
-         // Check if the file exists, create it if not
-         if (!Files.exists(jsonConfigurationFile)) {
-             Files.createFile(jsonConfigurationFile);
-         }
-         return jsonConfigurationFile;
-     }
- 
-     private String readScriptFromFile() throws IOException {
-         ClassLoader classLoader = getClass().getClassLoader();
-         try (InputStream inputStream = classLoader.getResourceAsStream("script.sh");
-              Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-             return scanner.useDelimiter("\\A").next();
-         }
-     }
  }
- 
