@@ -125,10 +125,23 @@ public abstract class GaswSubmit {
     }
 
     private String publishScript(String symbolicName, String script) throws IOException {
-        String fileName = symbolicName.replace(" ", "-") + ".sh";
+        // Ensure symbolic name does not contain extra extensions (e.g., .json)
+        String fileName = symbolicName.replaceAll("\\.[^.]+$", "");  // Remove any file extensions
+        
+        // Generate a unique script name using a timestamp
+        fileName += fileName + "-" + System.nanoTime() + ".sh";
+        
+        // Ensure the script directory exists
+        File scriptsDir = new File(GaswConstants.SCRIPT_ROOT);
+        if (!scriptsDir.exists()) {
+            scriptsDir.mkdir();
+        }
+        
+        // Write the script to the file
         writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
+        
         return fileName;
-    }
+        }
 
     /**
      *
