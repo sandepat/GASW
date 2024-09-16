@@ -31,14 +31,11 @@
  * knowledge of the CeCILL license and that you accept its terms.
  */
 
-
  package fr.insalyon.creatis.gasw.script;
 
  import java.io.IOException;
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +51,10 @@ import fr.insalyon.creatis.gasw.GaswUpload;
 import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
  
  /**
-  * 
+  *
   * Author: Sandesh Patil [https://github.com/sandepat]
-  * 
+  *
   */
- 
  public class MoteurliteConfigGenerator {
  
      private static final Logger logger = Logger.getLogger("fr.insalyon.creatis.gasw");
@@ -76,7 +72,8 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          conf = GaswConfiguration.getInstance();
      }
  
-     public Map<String, String> generateScript(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+     // Generates the configuration based on the input and minor status service
+     public Map<String, String> generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
@@ -87,19 +84,6 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
                      ? gaswInput.getUploads().stream().map(GaswUpload::getURI).collect(Collectors.toList())
                      : new ArrayList<>();
              String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
- 
-             // Generate the timestamp
-             String timestamp = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
- 
-             // Append the timestamp directory to the upload URI
-             List<URI> uploadURIWithTimestamp = uploadURI.stream().map(uri -> {
-                 try {
-                     return new URI(uri.toString() + "/" + timestamp);
-                 } catch (Exception e) {
-                     logger.error("Error appending timestamp to URI", e);
-                     return uri;
-                 }
-             }).collect(Collectors.toList());
  
              config.put("minorStatusEnabled", String.valueOf(conf.isMinorStatusEnabled()));
              config.put("serviceCall", minorStatusService.getServiceCall());
@@ -119,10 +103,10 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put("minAvgDownloadThroughput", String.valueOf(conf.getMinAvgDownloadThroughput()));
              config.put("bdiiTimeout", String.valueOf(GaswConstants.BDII_TIMEOUT));
              config.put("srmTimeout", String.valueOf(GaswConstants.SRM_TIMEOUT));
-             config.put("downloads", new ArrayList<>(gaswInput.getDownloads()).toString());
+             config.put("downloads", gaswInput.getDownloads().toString());
              config.put("uploads", gaswInput.getUploads().toString());
              config.put("jsonFileName", jsonFileName);
-             config.put("uploadURI", uploadURIWithTimestamp.toString()); 
+             config.put("uploadURI", uploadURI.toString());
              config.put("invocationJson", invocationJson);
          }
  
@@ -132,5 +116,4 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
  
          return config;
      }
- 
  }

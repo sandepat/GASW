@@ -95,25 +95,33 @@ public abstract class GaswSubmit {
      * @throws GaswException
      * @throws IOException 
      */
-    protected void generateScript() throws GaswException, IOException {
+    protected String generateScript() throws GaswException, IOException {
+        String scriptName;
 
-        if (gaswInput.isMoteurLiteEnabled()) {
-            String scriptMoteurlite;
-            String invocationMoteurlite;
-            Map<String, String> configMoteurlite;
-            scriptMoteurlite = readScriptFromResources();
-            invocationMoteurlite = gaswInput.getInvocationString();
-            configMoteurlite = MoteurliteConfigGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
-            publishConfiguration(gaswInput.getJobId(), configMoteurlite);
-            publishInvocation(gaswInput.getJobId(), invocationMoteurlite);
-            publishScript(gaswInput.getExecutableName(), scriptMoteurlite);
-            
-        } 
-        else {
-            String scriptMoteur;
-            scriptMoteur = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
-            publishScript(gaswInput.getExecutableName(), scriptMoteur);
-        }
+            if (gaswInput.isMoteurLiteEnabled()) {
+                // Logic for Moteurlite-specific script generation
+                logger.info("MoteurLite is enabled, generating Moteurlite-specific script.");
+                
+                // Get the script from resources
+                String scriptMoteurlite = readScriptFromResources();
+                
+                // Generate the Moteurlite-specific configuration
+                Map<String, String> configMoteurlite = MoteurliteConfigGenerator.getInstance().generateConfig(gaswInput, minorStatusServiceGenerator);
+                
+                // Publish the configuration and invocation
+                publishConfiguration(gaswInput.getJobId(), configMoteurlite);
+                publishInvocation(gaswInput.getJobId(), gaswInput.getInvocationString());
+                
+                // Publish the script itself
+                scriptName = publishScript(gaswInput.getExecutableName(), scriptMoteurlite);
+
+            } else {
+                // Original default behavior (when Moteurlite is not enabled)
+                String defaultScript = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
+                scriptName = publishScript(gaswInput.getExecutableName(), defaultScript);
+            }
+  
+        return scriptName;
     }
 
     private String publishScript(String symbolicName, String script) throws IOException {
