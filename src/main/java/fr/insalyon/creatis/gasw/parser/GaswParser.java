@@ -505,7 +505,7 @@ public class GaswParser extends DefaultHandler {
         List<GaswUpload> uploads = new ArrayList<>();
 
         URI boutiquesFilePathURI = new URI(boutiquesFilePath);
-        DownloadFiles.add(boutiquesFilePathURI);
+        //DownloadFiles.add(boutiquesFilePathURI);
 
         for (GaswArgument argument : arguments) {
             StringBuilder param = new StringBuilder();
