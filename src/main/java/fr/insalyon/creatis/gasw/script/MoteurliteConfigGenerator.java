@@ -76,7 +76,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
          conf = GaswConfiguration.getInstance();
      }
  
-     public Map<String, String> generateConfig(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
+     public Map<String, String> generateScript(GaswInput gaswInput, GaswMinorStatusServiceGenerator minorStatusService)
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
@@ -119,9 +119,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put("minAvgDownloadThroughput", String.valueOf(conf.getMinAvgDownloadThroughput()));
              config.put("bdiiTimeout", String.valueOf(GaswConstants.BDII_TIMEOUT));
              config.put("srmTimeout", String.valueOf(GaswConstants.SRM_TIMEOUT));
-             config.put("downloads", new ArrayList<>(gaswInput.getDownloads()) {{
-                 addAll(gaswInput.getDownloadFiles());
-             }}.toString());
+             config.put("downloads", new ArrayList<>(gaswInput.getDownloads()).toString());
              config.put("uploads", gaswInput.getUploads().toString());
              config.put("jsonFileName", jsonFileName);
              config.put("uploadURI", uploadURIWithTimestamp.toString()); 

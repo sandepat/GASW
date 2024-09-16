@@ -103,7 +103,7 @@ public abstract class GaswSubmit {
             Map<String, String> configMoteurlite;
             scriptMoteurlite = readScriptFromResources();
             invocationMoteurlite = gaswInput.getInvocationString();
-            configMoteurlite = MoteurliteConfigGenerator.getInstance().generateConfig(gaswInput, minorStatusServiceGenerator);
+            configMoteurlite = MoteurliteConfigGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
             publishConfiguration(gaswInput.getJobId(), configMoteurlite);
             publishInvocation(gaswInput.getJobId(), invocationMoteurlite);
             publishScript(gaswInput.getExecutableName(), scriptMoteurlite);
