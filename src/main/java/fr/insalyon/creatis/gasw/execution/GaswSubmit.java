@@ -129,7 +129,7 @@ public abstract class GaswSubmit {
         String fileName = symbolicName.replaceAll("\\.[^.]+$", ""); 
         
         // Generate a unique script name using a timestamp
-        fileName += fileName + "-" + System.nanoTime() + ".sh";
+        fileName += "-" + System.nanoTime() + ".sh";
         
         // Ensure the script directory exists
         File scriptsDir = new File(GaswConstants.SCRIPT_ROOT);
