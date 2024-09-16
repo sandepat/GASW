@@ -126,7 +126,7 @@ public abstract class GaswSubmit {
 
     private String publishScript(String symbolicName, String script) throws IOException {
         // Ensure symbolic name does not contain extra extensions (e.g., .json)
-        String fileName = symbolicName.replaceAll("\\.[^.]+$", "");  // Remove any file extensions
+        String fileName = symbolicName.replaceAll("\\.[^.]+$", ""); 
         
         // Generate a unique script name using a timestamp
         fileName += fileName + "-" + System.nanoTime() + ".sh";
@@ -199,7 +199,7 @@ public abstract class GaswSubmit {
             confDir.mkdir();
         }
 
-        File configFile = new File(confDir, jobId + "-configuration.sh");
+        File configFile = new File(confDir, jobId.substring(0, jobId.lastIndexOf(".")) + "-configuration.sh");
         writeToFile(configFile.getAbsolutePath(), string.toString());
 
     }
