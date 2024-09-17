@@ -1052,6 +1052,7 @@ touch ../DISABLE_WATCHDOG_CPU_WALLCLOCK_CHECK
 ###################################################################################
 
 # Remove square brackets and leading/trailing whitespace from downloads
+echo "${downloads}" EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 downloads="${downloads#[}"
 downloads="${downloads%]}"
 downloads="${downloads// /}"
