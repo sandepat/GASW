@@ -503,7 +503,7 @@ public class GaswParser extends DefaultHandler {
         getArgument(executableName, inputid, outputid);
         List<String> parameters = new ArrayList<>();
         List<GaswUpload> uploads = new ArrayList<>();
-        uploads.add(new GaswUpload(new URI(resultDirectory.values().stream().skip(1).findFirst().orElseThrow())));
+        uploads.add(new GaswUpload(new URI(resultDirectory.values().stream().findFirst().orElseThrow())));
 
         
 
