@@ -153,23 +153,16 @@ public abstract class GaswSubmit {
      * @param script Generated script to be saved in a file.
      * @return Name of the script file.
      */
-    protected String publishJdl(String scriptName, String script) {
-        String fileName = null;
+    protected String publishJdl(String scriptName, String jdl) {
 
         try {
-            File scriptsDir = new File(GaswConstants.SCRIPT_ROOT);
-            if (!scriptsDir.exists()) {
-                scriptsDir.mkdir();
+            File jdlDir = new File(GaswConstants.JDL_ROOT);
+            if (!jdlDir.exists()) {
+                jdlDir.mkdir();
             }
+            String fileName = scriptName.substring(0, scriptName.lastIndexOf(".")) + ".jdl";
+            writeToFile(GaswConstants.JDL_ROOT + "/" + fileName, jdl);
 
-            if (gaswInput.isMoteurLiteEnabled()) {
-                fileName = gaswInput.getJobId(); 
-                writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-            } else {
-                fileName = scriptName.replace(" ", "-");
-                fileName += "-" + System.nanoTime() + ".sh";
-                writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-            }
             return fileName;
 
         } catch (IOException ex) {
