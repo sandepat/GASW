@@ -38,7 +38,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -500,7 +499,6 @@ public class GaswParser extends DefaultHandler {
     Map<String, String> resultDirectory, String jobId, List<URI> DownloadFiles, String boutiquesFilePath)
             throws URISyntaxException, FileNotFoundException, IOException, GaswException, SAXException {
 
-        getArgument(executableName, inputid, outputid);
         List<String> parameters = new ArrayList<>();
         List<GaswUpload> uploads = new ArrayList<>();
         uploads.add(new GaswUpload(new URI(resultDirectory.get("results-directory"))));
@@ -553,7 +551,7 @@ public class GaswParser extends DefaultHandler {
                 gaswVariables, envVariables, invocationString, jobId, DownloadFiles);
     }
 
-        public String getArgument(String executableName, HashMap<Integer, String> inputid, HashMap<Integer, String> outputid) 
+        /*public String getArgument(String executableName, HashMap<Integer, String> inputid, HashMap<Integer, String> outputid) 
                 throws FileNotFoundException, IOException, GaswException, URISyntaxException, SAXException {
 
             // Check the value of LAB_DEFAULT_EXECUTOR
@@ -608,5 +606,5 @@ public class GaswParser extends DefaultHandler {
                 inputsList.add(outputid.get(i));
             }
             return executableName;
-        }
+        }*/
         }
