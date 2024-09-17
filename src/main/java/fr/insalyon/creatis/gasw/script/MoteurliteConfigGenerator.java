@@ -77,7 +77,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
-             String jsonFileName = (gaswInput.getExecutableName().contains("."))
+             String workflowFile = (gaswInput.getExecutableName().contains("."))
                      ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json"
                      : "";
              List<URI> uploadURI = (gaswInput.getUploads() != null)
@@ -105,7 +105,7 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put("srmTimeout", String.valueOf(GaswConstants.SRM_TIMEOUT));
              config.put("downloads", gaswInput.getDownloadFiles().toString());
              config.put("uploads", gaswInput.getUploads().toString());
-             config.put("jsonFileName", jsonFileName);
+             config.put("workflowFile", workflowFile);
              config.put("uploadURI", uploadURI.toString());
              config.put("invocationJson", invocationJson);
          }

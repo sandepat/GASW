@@ -504,10 +504,7 @@ public class GaswParser extends DefaultHandler {
         List<String> parameters = new ArrayList<>();
         List<GaswUpload> uploads = new ArrayList<>();
 
-        URI boutiquesFilePathURI = new URI(boutiquesFilePath);
-        //DownloadFiles.add(boutiquesFilePathURI);
-
-        for (GaswArgument argument : arguments) {
+        /*for (GaswArgument argument : arguments) {
             StringBuilder param = new StringBuilder();
             if (argument.getOption() != null) {
                 param.append(argument.getOption());
@@ -548,7 +545,7 @@ public class GaswParser extends DefaultHandler {
             if (!argument.isImplicit()) {
                 parameters.add(param.toString());
             }
-        }
+        }*/
         return new GaswInput(applicationName, executableName, parameters, downloads, uploads,
                 gaswVariables, envVariables, invocationString, jobId, DownloadFiles);
     }
