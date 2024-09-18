@@ -91,4 +91,5 @@ public class GaswConstants {
     public static final int numberOfReplicas = 1;
     public static final String INVOCATION_DIR = "./inv";
     public static final String CONFIG_DIR = "./config";
+    public static final String WORKFLOW_FILE = "workflow.json";
 }
