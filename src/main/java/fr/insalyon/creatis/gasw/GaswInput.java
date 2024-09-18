@@ -86,12 +86,11 @@ public class GaswInput {
      * @param applicationName
      */
 
-    public GaswInput(String applicationName, String executableName2, List<String> parameters2, List<URI> downloads2,
+    public GaswInput(String applicationName, String executableName2, List<URI> downloads2,
             List<GaswUpload> uploads2, Map<String, String> gaswVariables2, Map<String, String> envVariables2,
             String invocationString, String jobId) {
         
         this.executableName = executableName2;
-        this.parameters = parameters2;
         this.downloads = downloads2;
         this.uploads = uploads2;
         this.gaswVariables = gaswVariables2;

@@ -1,5 +1,31 @@
 #!/bin/bash
 
+function info {
+  local D=`date`
+  echo [ INFO - $D ] $*
+}
+
+function warning {
+  local D=`date`
+  echo [ WARN - $D ] $*
+}
+
+function error {
+  local D=`date`
+  echo [ ERROR - $D ] $* >&2
+}
+
+function startLog {
+  echo "<$*>" >&1
+  echo "<$*>" >&2
+}
+
+function stopLog {
+  local logName=$1
+  echo "</${logName}>" >&1
+  echo "</${logName}>" >&2
+}
+
 # Extract filename without extension
 filename=$(basename "${0%.sh}")
 
@@ -34,32 +60,6 @@ else
     echo "Configuration file $configurationFile not found!"
     exit 1
 fi
-
-function info {
-  local D=`date`
-  echo [ INFO - $D ] $*
-}
-
-function warning {
-  local D=`date`
-  echo [ WARN - $D ] $*
-}
-
-function error {
-  local D=`date`
-  echo [ ERROR - $D ] $* >&2
-}
-
-function startLog {
-  echo "<$*>" >&1
-  echo "<$*>" >&2
-}
-
-function stopLog {
-  local logName=$1
-  echo "</${logName}>" >&1
-  echo "</${logName}>" >&2
-}
 
 function download_udocker {
   #installation of udocker
@@ -1072,12 +1072,7 @@ fi
 touch ../DISABLE_WATCHDOG_CPU_WALLCLOCK_CHECK
 
 ###################################################################################
-# Remove square brackets and leading/trailing whitespace from downloads
-downloads="${downloads#[}"
-downloads="${downloads%]}"
-downloads="${downloads// /}"
-
-IFS=',' read -ra download_array <<< "$downloads"
+IFS=' ' read -ra download_array <<< "$downloads"
 
 # Iterate over each URL in the 'downloads' array
 for download in "${download_array[@]}"; do
@@ -1100,15 +1095,7 @@ stopLog inputs_download
 
 
 startLog application_environment
-echo "$variables"
 
-# Iterate through each variable in $variables and export them
-# Assuming $variables is a string containing key-value pairs separated by space
-for variable in $variables; do
-    key=$(echo "$variable" | cut -d'=' -f1)
-    value=$(echo "$variable" | cut -d'=' -f2)
-    export "$key"="$value"
-done
 
 # Stop log for application environment
 stopLog application_environment
