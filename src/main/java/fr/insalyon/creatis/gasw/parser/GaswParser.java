@@ -500,9 +500,10 @@ public class GaswParser extends DefaultHandler {
     Map<String, String> resultDirectory, String jobId, List<URI> downloads)
             throws URISyntaxException, FileNotFoundException, IOException, GaswException, SAXException {
 
+        List<String> parameters = new ArrayList<>();
         List<GaswUpload> uploads = new ArrayList<>();
         uploads.add(new GaswUpload(new URI(resultDirectory.get("results-directory"))));
-        return new GaswInput(applicationName, executableName, downloads, uploads,
+        return new GaswInput(applicationName, executableName, parameters, downloads, uploads,
         gaswVariables, envVariables, invocationString, jobId);
     }
 }
