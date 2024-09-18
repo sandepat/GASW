@@ -219,6 +219,17 @@ REFRESH_PID=""
 # shanoir:/path/to/file/filename?&refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lk....&keycloak_client_id=....&keycloak_client_secret=...
 # The mandatory arguments are: keycloak_client_id, keycloak_client_secret.
 #
+
+
+function stopRefreshingToken {
+    if [ "${REFRESH_PID}" != "" ]; then
+        info "Killing background refresh token process with id : ${REFRESH_PID}"
+        kill -9 "${REFRESH_PID}"
+        REFRESH_PID=""
+        echo "refresh token process ended !"
+    fi
+}
+
 function refresh_token {
     touch "$SHANOIR_TOKEN_LOCATION"
     touch "$SHANOIR_REFRESH_TOKEN_LOCATION"
@@ -265,18 +276,10 @@ function refresh_token {
     done
 
 }
+
 #
 # Cleanup method: stop the refreshing process
 #
-
-function stopRefreshingToken {
-    if [ "${REFRESH_PID}" != "" ]; then
-        info "Killing background refresh token process with id : ${REFRESH_PID}"
-        kill -9 "${REFRESH_PID}"
-        REFRESH_PID=""
-        echo "refresh token process ended !"
-    fi
-}
 #
 # The refresh token may take some time, this method is for that purpose
 # and it exit the program if it's timed out
