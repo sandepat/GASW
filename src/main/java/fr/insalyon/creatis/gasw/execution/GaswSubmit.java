@@ -156,15 +156,26 @@ public abstract class GaswSubmit {
     protected String publishJdl(String scriptName, String jdl) {
 
         try {
+            // Ensure the JDL directory exists
             File jdlDir = new File(GaswConstants.JDL_ROOT);
             if (!jdlDir.exists()) {
                 jdlDir.mkdir();
             }
-            String fileName = scriptName.substring(0, scriptName.lastIndexOf(".")) + ".jdl";
+    
+            // Ensure the script name has the .sh extension before appending the unique ID
+            String scriptNameWithSh = scriptName;
+            if (!scriptNameWithSh.endsWith(".sh")) {
+                scriptNameWithSh += ".sh";
+            }
+    
+            // Create the JDL file name with the format <script_name>.sh-<unique_id>.jdl
+            String fileName = scriptNameWithSh + "-" + System.nanoTime() + ".jdl";
+            
+            // Write the JDL content to the file
             writeToFile(GaswConstants.JDL_ROOT + "/" + fileName, jdl);
-
+    
             return fileName;
-
+    
         } catch (IOException ex) {
             logger.error(ex);
             return null;
