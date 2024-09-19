@@ -33,6 +33,8 @@
 package fr.insalyon.creatis.gasw;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -86,19 +88,19 @@ public class GaswInput {
      * @param applicationName
      */
 
-    public GaswInput(String applicationName, String executableName2, List<String> parameters2, List<URI> downloads2,
-            List<GaswUpload> uploads2, Map<String, String> gaswVariables2, Map<String, String> envVariables2,
-            String invocationString, String jobId) {
+    public GaswInput(String applicationName, String executableName, List<URI> downloads,
+            URI uploadDirectory, String invocationString, String jobId) {
         
-        this.executableName = executableName2;
-        this.parameters = parameters2;
-        this.downloads = downloads2;
-        this.uploads = uploads2;
-        this.gaswVariables = gaswVariables2;
-        this.envVariables = envVariables2;
+        this.applicationName = applicationName;
+        this.executableName = executableName;
+        this.parameters = new ArrayList<>();
+        this.downloads = downloads;
+        this.uploads = new ArrayList<>();
+        uploads.add(new GaswUpload(uploadDirectory));
+        this.gaswVariables = new HashMap<>();
+        this.envVariables = new HashMap<>();
         this.invocationString = invocationString;
         this.jobId = jobId;
-        this.applicationName = applicationName;
         this.moteurLiteEnabled = true;
     }
 

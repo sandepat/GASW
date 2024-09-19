@@ -1074,13 +1074,8 @@ fi
 # Create a file to disable watchdog CPU wallclock check
 touch ../DISABLE_WATCHDOG_CPU_WALLCLOCK_CHECK
 
-###################################################################################
-IFS=' ' read -ra download_array <<< "$downloads"
-
 # Iterate over each URL in the 'downloads' array
-for download in "${download_array[@]}"; do
-    # Remove leading and trailing whitespace
-    download="$(echo -e "${download}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+for download in $downloads do
     # Process the URL using downloadURI function
     downloadURI "$download"
     # Print the processed URL

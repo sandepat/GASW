@@ -33,7 +33,6 @@
 package fr.insalyon.creatis.gasw.parser;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
@@ -494,16 +493,5 @@ public class GaswParser extends DefaultHandler {
         if (f.getName().length() > 0) {
             content.append(separator).append(f.getName());
         }
-    }
-
-    public GaswInput getGaswInput(String applicationName, Map<String, String> inputsMap, String executableName,HashMap<Integer, String> inputid , HashMap<Integer, String> outputid, String invocationString, 
-    Map<String, String> resultDirectory, String jobId, List<URI> downloads)
-            throws URISyntaxException, FileNotFoundException, IOException, GaswException, SAXException {
-
-        List<String> parameters = new ArrayList<>();
-        List<GaswUpload> uploads = new ArrayList<>();
-        uploads.add(new GaswUpload(new URI(resultDirectory.get("results-directory"))));
-        return new GaswInput(applicationName, executableName, parameters, downloads, uploads,
-        gaswVariables, envVariables, invocationString, jobId);
     }
 }
