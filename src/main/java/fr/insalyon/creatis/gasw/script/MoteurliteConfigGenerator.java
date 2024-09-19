@@ -81,8 +81,11 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
                     : "";
             // Extract and append the current date and time to the first upload URI
             URI uploadURI = gaswInput.getUploads() != null && !gaswInput.getUploads().isEmpty()
-                    ? URI.create(gaswInput.getUploads().get(0).getURI().toString() + "/" + new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()))
-                    : null;
+            ? URI.create(gaswInput.getUploads().get(0).getURI().toString() + "/" +
+                new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()) + "_" +
+                gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + "-" +
+                gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")))
+            : null;    
             String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
             String downloads = gaswInput.getDownloads().stream()
                 .map(URI::toString)
