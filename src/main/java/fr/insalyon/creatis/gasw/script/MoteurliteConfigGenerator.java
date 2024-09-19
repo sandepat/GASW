@@ -35,6 +35,8 @@
 
  import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,14 +76,15 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
-             String workflowFile = (gaswInput.getExecutableName().contains("."))
-                     ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json"
-                     : "";
-             URI uploadURI = (gaswInput.getUploads() != null && !gaswInput.getUploads().isEmpty())
-                     ? gaswInput.getUploads().get(0).getURI()
-                     : null;
-             String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
-             String downloads = gaswInput.getDownloads().stream()
+            String workflowFile = (gaswInput.getExecutableName().contains("."))
+                    ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json"
+                    : "";
+            // Extract and append the current date and time to the first upload URI
+            URI uploadURI = gaswInput.getUploads() != null && !gaswInput.getUploads().isEmpty()
+                    ? URI.create(gaswInput.getUploads().get(0).getURI().toString() + "/" + new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()))
+                    : null;
+            String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
+            String downloads = gaswInput.getDownloads().stream()
                 .map(URI::toString)
                 .collect(Collectors.joining(" "));
  

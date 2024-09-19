@@ -1122,8 +1122,11 @@ fi
 # Export current directory to LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=${PWD}:${LD_LIBRARY_PATH}
 
+# copy the workflow file in the execution directory
+cp ../workflow.json ./$workflowFile
+
 # Execute the command
-PYTHONPATH=".:$PYTHONPATH" $BOSHEXEC exec launch ../$workflowFile ../inv/$invocationJson -v $PWD/../cache:$PWD/../cache
+PYTHONPATH=".:$PYTHONPATH" $BOSHEXEC exec launch $workflowFile ../inv/$invocationJson -v $PWD/../cache:$PWD/../cache
 
 # Check if execution was successful
 if [ $? -ne 0 ]; then
