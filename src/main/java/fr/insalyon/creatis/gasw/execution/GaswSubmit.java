@@ -211,7 +211,7 @@ public abstract class GaswSubmit {
             String value = config.get(key);
             value = value.replaceAll("^\"+", "");
             value = value.replaceAll("\"+$", "");
-            string.append(key).append("=\"").append(config.get(key)).append("\"\n");
+            string.append(key).append("=\"").append(value).append("\"\n");
         }
 
         File confDir = new File(GaswConstants.CONFIG_DIR);
