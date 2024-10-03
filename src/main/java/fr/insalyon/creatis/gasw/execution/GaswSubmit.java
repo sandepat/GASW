@@ -36,6 +36,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -144,11 +145,11 @@ public abstract class GaswSubmit {
     
         try {
             // If MoteurLite is enabled, use the jobId as the script name
-            Path sourceScriptFile = Paths.get(getClass().getClassLoader().getResource("script.sh").toURI());
             String fileName = gaswInput.getJobId();
             Path destScriptFile = Paths.get(GaswConstants.SCRIPT_ROOT, fileName);
-            Files.copy(sourceScriptFile, destScriptFile, StandardCopyOption.REPLACE_EXISTING);
-     
+            try (InputStream is = getClass().getClassLoader().getResourceAsStream("script.sh")) {
+                Files.copy(is, destScriptFile, StandardCopyOption.REPLACE_EXISTING);
+            }     
             return fileName;
         } catch (Exception e) {
             logger.error("Error getting script file from classpath", e);
