@@ -94,6 +94,7 @@ public class GaswConfiguration {
     private String containersCVMFSPath;
     private String udockerTag;
     private String boutiquesProvenanceDir;
+    private String boutiquesFileName;
     // Failover Server
     private boolean failOverEnabled;
     private String failOverHost;
@@ -168,6 +169,7 @@ public class GaswConfiguration {
             containersCVMFSPath = config.getString(GaswConstants.LAB_CONTAINERS_CVMFS_PATH, "\"/cvmfs/biomed.egi.eu/vip/udocker/containers\"");
             udockerTag = config.getString(GaswConstants.LAB_UDOCKER_TAG, "\"1.3.1\"");
             boutiquesProvenanceDir = config.getString(GaswConstants.LAB_BOUTIQUES_PROV_DIR, "\"$HOME/.cache/boutiques/data\"");
+            boutiquesFileName = config.getString(GaswConstants.LAB_BOUTIQUES_FILE_NAME, "\"workflow.json\"");
 
             failOverEnabled = config.getBoolean(GaswConstants.LAB_FAILOVER_ENABLED, false);
             failOverHost = config.getString(GaswConstants.LAB_FAILOVER_HOST, "localhost");
@@ -202,6 +204,7 @@ public class GaswConfiguration {
             config.setProperty(GaswConstants.LAB_CONTAINERS_CVMFS_PATH, containersCVMFSPath);
             config.setProperty(GaswConstants.LAB_UDOCKER_TAG, udockerTag);
             config.setProperty(GaswConstants.LAB_BOUTIQUES_PROV_DIR, boutiquesProvenanceDir);
+            config.setProperty(GaswConstants.LAB_BOUTIQUES_FILE_NAME, boutiquesFileName);
 
             config.setProperty(GaswConstants.LAB_FAILOVER_ENABLED, failOverEnabled);
             config.setProperty(GaswConstants.LAB_FAILOVER_HOST, failOverHost);
@@ -428,6 +431,10 @@ public class GaswConfiguration {
 
     public String getBoutiquesProvenanceDir() {
         return boutiquesProvenanceDir;
+    }
+
+    public String getBoutiquesFilename() {
+        return boutiquesFileName;
     }
 
     public String getContainersCVMFSPath() {

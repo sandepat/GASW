@@ -82,9 +82,6 @@ public class GaswParser extends DefaultHandler {
     private GaswOutputArg outputArg;
     private List<String> inputsList;
 
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_RESET = "\u001B[0m";
-
     private static final String LFN_PREFIX = "lfn://";
     private static final String FILE_PREFIX = "file:/";
 
@@ -182,7 +179,6 @@ public class GaswParser extends DefaultHandler {
             inputArg = new GaswInputArg(name, option, implicit);
             arguments.add(inputArg);
             inputsList.add(name);
-            System.out.println(ANSI_RED + "inputArg.getName() " +inputArg.getName());
 
         } else if (localName.equals("access")) {
 
@@ -327,16 +323,16 @@ public class GaswParser extends DefaultHandler {
     }
 
     static List<GaswOutputTemplatePart> templateParts(
-        String value, List<String> inputsList,Set<String> stripExtensions) throws SAXException {
+        String value, List<String> inputsList, Set<String> stripExtensions) throws SAXException {
 
         // $dirX/$naX is treated as a special case, because if $na1 is an empty
         // string, the / should not be inserted.
-        Pattern p = Pattern.compile("\\$dir(\\d+)/\\$na\\1");  // the "\\1" at the end references the first group
+        Pattern p = Pattern.compile("\\$dir(\\d+)/\\$na\\1"); // the "\\1" at the end references the first group
         Matcher m = p.matcher(value);
         List<GaswOutputTemplatePart> list;
         if (m.find()) {
             // everything before the dirX/naX is treated normally, the dirX/naX is added as DIR_AND_NAME,
-            // and then it looks again for dirX/naX recursively 
+            // and then it looks again for dirX/naX recursively
             list =
                 templateSimpleParts(value.substring(0, m.start()), inputsList, stripExtensions);
             int n = Integer.parseInt(m.group(1));
@@ -363,7 +359,7 @@ public class GaswParser extends DefaultHandler {
             if (m.start() > start) {
                 list.addLast(new GaswOutputTemplatePart(
                                  GaswOutputTemplateType.STRING,
-                                 value.substring(start, m.start()),stripExtensions));
+                                 value.substring(start, m.start()), stripExtensions));
             }
             GaswOutputTemplateType type = null;
             int n = Integer.parseInt(m.group(2));
@@ -386,7 +382,7 @@ public class GaswParser extends DefaultHandler {
             }
             try {
                 list.addLast(
-                    new GaswOutputTemplatePart(type, inputsList.get(n - 1),stripExtensions));
+                    new GaswOutputTemplatePart(type, inputsList.get(n - 1), stripExtensions));
             } catch (ArrayIndexOutOfBoundsException ex) {
                 throw new SAXException(
                     "The index used in the output template does not exist.");
@@ -443,7 +439,7 @@ public class GaswParser extends DefaultHandler {
                 {
                 	String inputValue = inputsMap.get(part.getValue());
                 	if (part.getStripExtensions()!=null) {
-                		for (String extn: part.getStripExtensions()) {
+                		for (String extn : part.getStripExtensions()) {
                     		if (inputValue.endsWith(extn)) {
                                 inputValue=inputValue.substring(0, inputValue.length() - extn.length());;
                     		}

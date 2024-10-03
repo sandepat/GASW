@@ -35,8 +35,6 @@
 
  import java.io.IOException;
 import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,22 +74,12 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              throws IOException {
          Map<String, String> config = new HashMap<>();
          if (gaswInput.getExecutableName() != null) {
-            String workflowFile = (gaswInput.getExecutableName().contains("."))
-                    ? gaswInput.getExecutableName().substring(0, gaswInput.getExecutableName().lastIndexOf(".")) + ".json"
-                    : "";
             // Extract and append the current date and time to the first upload URI
-            URI uploadURI = gaswInput.getUploadURI() != null
-            ? URI.create(gaswInput.getUploadURI().toString() + "/" +
-                new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date()) + "_" +
-                gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")))
-            : null; 
-            String invocationJson = gaswInput.getJobId().substring(0, gaswInput.getJobId().lastIndexOf(".")) + "-invocation.json";
+            URI uploadURI = gaswInput.getUploadURI();
             String downloads = gaswInput.getDownloads().stream()
                 .map(URI::toString)
                 .collect(Collectors.joining(" "));
  
-             config.put("minorStatusEnabled", String.valueOf(conf.isMinorStatusEnabled()));
-             config.put("serviceCall", minorStatusService.getServiceCall());
              config.put("defaultEnvironment", conf.getDefaultEnvironment());
              config.put("voDefaultSE", conf.getVoDefaultSE());
              config.put("voUseCloseSE", conf.getVoUseCloseSE());
@@ -101,7 +89,6 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put("udockerTag", conf.getUdockerTag());
              config.put("simulationID", conf.getSimulationID());
              config.put("cacheDir", GaswConstants.CACHE_DIR);
-             config.put("backgroundScript", conf.getDefaultBackgroundScript());
              config.put("nrep", String.valueOf(GaswConstants.numberOfReplicas));
              config.put("cacheFile", GaswConstants.CACHE_FILE);
              config.put("timeout", String.valueOf(GaswConstants.CONNECT_TIMEOUT));
@@ -109,13 +96,8 @@ import fr.insalyon.creatis.gasw.execution.GaswMinorStatusServiceGenerator;
              config.put("bdiiTimeout", String.valueOf(GaswConstants.BDII_TIMEOUT));
              config.put("srmTimeout", String.valueOf(GaswConstants.SRM_TIMEOUT));
              config.put("downloads", downloads);
-             config.put("workflowFile", workflowFile);
+             config.put("boutiquesFilename", conf.getBoutiquesFilename());
              config.put("uploadURI", uploadURI.toString());
-             config.put("invocationJson", invocationJson);
-         }
- 
-         for (String key : gaswInput.getEnvVariables().keySet()) {
-             config.put(key, gaswInput.getEnvVariables().get(key));
          }
  
          return config;

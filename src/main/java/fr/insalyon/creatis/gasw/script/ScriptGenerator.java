@@ -83,7 +83,7 @@ public class ScriptGenerator {
      * @throws IOException 
      */
     public String generateScript(GaswInput gaswInput, 
-            GaswMinorStatusServiceGenerator minorStatusService) throws IOException, GaswException {
+            GaswMinorStatusServiceGenerator minorStatusService) {
 
         StringBuilder sb = new StringBuilder();
 

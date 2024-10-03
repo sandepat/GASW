@@ -33,6 +33,8 @@
 package fr.insalyon.creatis.gasw;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,9 +86,9 @@ public class GaswInput {
      * @param gaswVariables Map of GASW variables.
      * @param envVariables Map of environment variables.
      * @param invocationString String representation of the invocation
-     * @param jobId
-     * @param applicationName
-     * @param downloadFiles
+     * @param jobId Job ID
+     * @param applicationName Name of the application
+     * @param downloadFiles List of input files to be downloaded in the worker node.
      */
 
     public GaswInput(String applicationName, String executableName, List<URI> downloads,
@@ -99,6 +101,11 @@ public class GaswInput {
         this.jobId = jobId;
         this.applicationName = applicationName;
         this.moteurLiteEnabled = true;
+        this.parameters = new ArrayList<>();
+        this.gaswVariables = new HashMap<>();
+        this.envVariables = new HashMap<>();
+
+
     }
 
     /**

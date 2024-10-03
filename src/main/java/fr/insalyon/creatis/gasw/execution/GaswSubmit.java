@@ -36,10 +36,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 
@@ -93,17 +94,14 @@ public abstract class GaswSubmit {
      *
      * @return
      * @throws GaswException
-     * @throws IOException 
      */
-    protected String generateScript() throws GaswException, IOException {
-        String scriptName;
+    protected String generateScript() throws GaswException {
+        try {
+            String scriptName;
 
             if (gaswInput.isMoteurLiteEnabled()) {
                 // Logic for Moteurlite-specific script generation
                 logger.info("MoteurLite is enabled, generating Moteurlite-specific script.");
-                
-                // Get the script from resources
-                String scriptMoteurlite = readScriptFromResources();
                 
                 // Generate the Moteurlite-specific configuration
                 Map<String, String> configMoteurlite = MoteurliteConfigGenerator.getInstance().generateConfig(gaswInput, minorStatusServiceGenerator);
@@ -113,38 +111,57 @@ public abstract class GaswSubmit {
                 publishInvocation(gaswInput.getJobId(), gaswInput.getInvocationString());
                 
                 // Publish the script itself
-                scriptName = publishScript(gaswInput.getExecutableName(), scriptMoteurlite);
+                scriptName = publishMoteurLiteScript();
 
             } else {
                 // Original default behavior (when Moteurlite is not enabled)
                 String defaultScript = ScriptGenerator.getInstance().generateScript(gaswInput, minorStatusServiceGenerator);
-                scriptName = publishScript(gaswInput.getExecutableName(), defaultScript);
+                scriptName = publishOldScript(gaswInput.getExecutableName(), defaultScript);
             }
-  
-        return scriptName;
+    
+            return scriptName;
+            
+        } catch (IOException ex) {
+            logger.error("Error while generating script / config / invocation", ex);
+            throw new GaswException(ex);
+        }
     }
 
-    private String publishScript(String symbolicName, String script) throws IOException {
+    private String publishOldScript(String symbolicName, String script) throws IOException {
         String fileName = null;
     
+        prepareScriptDir();
+
+        // If MoteurLite is not enabled, generate the script name with a timestamp
+        fileName = symbolicName.replace(" ", "-");
+        fileName += "-" + System.nanoTime() + ".sh";
+        writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
+        
+        return fileName;
+    }
+    private String publishMoteurLiteScript() throws IOException, GaswException {
+        prepareScriptDir();
+    
+        try {
+            // If MoteurLite is enabled, use the jobId as the script name
+            Path sourceScriptFile = Paths.get(getClass().getClassLoader().getResource("script.sh").toURI());
+            String fileName = gaswInput.getJobId();
+            Path destScriptFile = Paths.get(GaswConstants.SCRIPT_ROOT, fileName);
+            Files.copy(sourceScriptFile, destScriptFile, StandardCopyOption.REPLACE_EXISTING);
+     
+            return fileName;
+        } catch (Exception e) {
+            logger.error("Error getting script file from classpath", e);
+            throw new GaswException(e);
+        }
+    }
+
+    private void prepareScriptDir() throws IOException {
         // Ensure the script directory exists
         File scriptsDir = new File(GaswConstants.SCRIPT_ROOT);
         if (!scriptsDir.exists()) {
             scriptsDir.mkdir();
         }
-    
-        // If MoteurLite is enabled, use the jobId as the script name
-        if (gaswInput.isMoteurLiteEnabled()) {
-            fileName = gaswInput.getJobId(); 
-            writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-        } else {
-            // If MoteurLite is not enabled, generate the script name with a timestamp
-            fileName = symbolicName.replace(" ", "-");
-            fileName += "-" + System.nanoTime() + ".sh";
-            writeToFile(GaswConstants.SCRIPT_ROOT + "/" + fileName, script);
-        }
-        
-        return fileName;
     }
 
     /**
@@ -186,12 +203,6 @@ public abstract class GaswSubmit {
         fstream.close();
     }
 
-    private String readScriptFromResources() throws IOException {
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream("script.sh");
-             Scanner scanner = new Scanner(inputStream, StandardCharsets.UTF_8.name())) {
-            return scanner.useDelimiter("\\A").next();
-        }
-}
     private void publishConfiguration(String jobId, Map<String, String> config) throws IOException {
         StringBuilder string = new StringBuilder();
         for (String key : config.keySet()) {

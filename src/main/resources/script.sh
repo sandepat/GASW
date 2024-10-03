@@ -29,6 +29,10 @@ function stopLog {
 # Extract filename without extension
 DIRNAME=$(basename "${0%.sh}")
 
+# Path to the configuration JSON file
+configurationFilename="$DIRNAME-configuration.sh"
+invocationJsonFilename="$DIRNAME-invocation.json"
+
 # Check if directories already exist (In case of LOCAL, the directories already exists. To replicate the LOCAL execution in DIRAC, we create the directories on the remote node)
 if [[ ! -d "config" || ! -d "inv" ]]; then
     # Create the directories if they don't already exist
@@ -36,18 +40,15 @@ if [[ ! -d "config" || ! -d "inv" ]]; then
     mkdir -p config
 
     # Copy the files to their respective directories after creation
-    cp "${filename}-configuration.sh" config/
-    echo "Copied ${DIRNAME}-configuration.sh to config/"
-    cp "${filename}-invocation.json" inv/
-    echo "Copied ${filename}-configuration.sh to config/"
+    cp "${configurationFilename}" config/
+    echo "Copied ${configurationFilename} to config/"
+    cp "${invocationJsonFilename}" inv/
+    echo "Copied ${invocationJsonFilename} to inv/"
 else
     echo "Directories already exist. Skipping copy."
 fi
 
-
-# Path to the configuration JSON file
-configurationFile="config/$DIRNAME-configuration.sh"
-
+configurationFile="config/$configurationFilename"
 # Source the configuration file
 if [ -f "$configurationFile" ]; then
     source "$configurationFile"
@@ -978,10 +979,6 @@ else
     exit 7
 fi
 
-if [[ $minorStatusEnabled == true && $serviceCall ]]; then
-    $serviceCall ${MOTEUR_WORKFLOWID} ${JOBID} 1
-fi
-
 BACKPID=""
 
 # DIRAC may wrongly position this variable
@@ -1028,75 +1025,34 @@ mkdir -p $cacheDir
 stopLog host_config
 
 
-startLog background
-
-# Execute service call if minor status is enabled and service call is provided
-if [[ "$minorStatusEnabled" == true && -n "$serviceCall" ]]; then
-    $serviceCall $MOTEUR_WORKFLOWID $JOBID 2
-fi
-
-# Check cache, download, and cache LFN for the background script
-checkCacheDownloadAndCacheLFN $backgroundScript
-
-# Execute the background script
-bash $(basename $backgroundScript) 1>background.out 2>background.err &
-BACKPID=$!
-
-# Stop log
-stopLog background
-
-
 startLog inputs_download
-
-
-# Execute service call if minor status is enabled and service call is provided
-if [[ "$minorStatusEnabled" == true && -n "$serviceCall" ]]; then
-    $serviceCall $MOTEUR_WORKFLOWID $JOBID 3
-fi
 
 # Create a file to disable watchdog CPU wallclock check
 touch ../DISABLE_WATCHDOG_CPU_WALLCLOCK_CHECK
 
 # Iterate over each URL in the 'downloads' array
-for download in "${download_array[@]}"; do
 for download in "${downloads[@]}"; do
     # Remove leading and trailing whitespace
     download="$(echo -e "${download}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
     # Process the URL using downloadURI function
-    # Process the URL using downloadURI function
-    downloadURI "$download"
     downloadURI "$download"
     # Print the processed URL
-    # Print the processed URL
-    echo "$download"
     echo "$download"
 done
-done
-# Change permissions of all files in the directory
-# Change permissions of all files in the directory
-chmod 755 *
-chmod 755 *
-# Record the timestamp after downloads
-# Record the timestamp after downloads
-AFTERDOWNLOAD=$(date +%s)
-AFTERDOWNLOAD=$(date +%s)
-# Stop log for inputs download
-# Stop log for inputs download
-stopLog inputs_download
-stopLog inputs_download
 
+# Change permissions of all files in the directory
+chmod 755 *
+# Record the timestamp after downloads
+AFTERDOWNLOAD=$(date +%s)
+# Stop log for inputs download
+stopLog inputs_download
 
 
 startLog application_environment
 # Stop log for application environment
-stopLog application_environment
+
 
 startLog application_execution
-
-# Perform service call if minor status is enabled
-if [[ $minorStatusEnabled == true && $serviceCall ]]; then
-    $serviceCall ${MOTEUR_WORKFLOWID} ${JOBID} 4
-fi
 
 # Add a delay to ensure file creation before proceeding
 echo "BEFORE_EXECUTION_REFERENCE" > BEFORE_EXECUTION_REFERENCE_FILE
@@ -1116,7 +1072,7 @@ fi
 export LD_LIBRARY_PATH=${PWD}:${LD_LIBRARY_PATH}
 
 # Execute the command
-PYTHONPATH=".:$PYTHONPATH" $BOSHEXEC exec launch ../$workflowFile ../inv/$invocationJson -v $PWD/../cache:$PWD/../cache
+PYTHONPATH=".:$PYTHONPATH" $BOSHEXEC exec launch ../$boutiquesFilename ../inv/$invocationJsonFilename -v $PWD/../cache:$PWD/../cache
 
 # Check if execution was successful
 if [ $? -ne 0 ]; then
@@ -1141,15 +1097,8 @@ copyProvenanceFile "$provenanceFile"
 
 startLog results_upload
 
-# Perform service call if minor status is enabled
-if [[ $minorStatusEnabled == true && $serviceCall ]]; then
-    $serviceCall ${MOTEUR_WORKFLOWID} ${JOBID} 5
-fi
-
-
 # Extract the file names and store them in a bash array (first method is commented out since jq has imcomplete support in some linux distributions)
 file_names=($(sed -n '/"public-output": {/,/},/p' "$provenanceFile" | sed -n '/"output-files": {/,/},/p' | grep -oP '"file-name": *"\K[^"]+'))
-#file_names=($(grep -o '"file-name": *"[^"]*"' "$provenanceFile" | awk -F': ' '{print $2}' | tr -d '"' | tr '\n' ' ')) //experimental
 
 # Remove square brackets from uploadURI (we assume UploadURI will always be a single string)
 uploadURI=$(echo "$uploadURI" | sed 's/^\[//; s/\]$//')
@@ -1192,12 +1141,6 @@ else
 fi
 
 stopLog results_upload
-
-startLog footer
-# Perform service call if minor status is enabled
-if [[ $minorStatusEnabled == true && $serviceCall ]]; then
-    $serviceCall ${MOTEUR_WORKFLOWID} ${JOBID} 6
-fi
 
 cleanup
 
