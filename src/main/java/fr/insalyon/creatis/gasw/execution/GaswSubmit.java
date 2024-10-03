@@ -207,6 +207,10 @@ public abstract class GaswSubmit {
     private void publishConfiguration(String jobId, Map<String, String> config) throws IOException {
         StringBuilder string = new StringBuilder();
         for (String key : config.keySet()) {
+            // remove leading and trailing quotes as this can mess up bash config
+            String value = config.get(key);
+            value = value.replaceAll("^\"+", "");
+            value = value.replaceAll("\"+$", "");
             string.append(key).append("=\"").append(config.get(key)).append("\"\n");
         }
 
