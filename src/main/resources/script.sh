@@ -1098,8 +1098,8 @@ copyProvenanceFile "$provenanceFile"
 startLog results_upload
 
 # Extract the file names and store them in a bash array (first method is commented out since jq has imcomplete support in some linux distributions)
-#file_names=($(sed -n '/"public-output": {/,/},/p' "$provenanceFile" | sed -n '/"output-files": {/,/},/p' | grep -oP '"file-name": *"\K[^"]+'))
-file_names=($(jq -r '.["public-output"]["output-files"][] | .["file-name"]' "$provenanceFile"))
+file_names=($(sed -n '/"public-output": {/,/},/p' "$provenanceFile" | sed -n '/"output-files": {/,/},/p' | grep -oP '"file-name": *"\K[^"]+'))
+#file_names=($(jq -r '.["public-output"]["output-files"][] | .["file-name"]' "$provenanceFile"))
 
 # Remove square brackets from uploadURI (we assume UploadURI will always be a single string)
 uploadURI=$(echo "$uploadURI" | sed 's/^\[//; s/\]$//')
