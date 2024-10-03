@@ -1137,7 +1137,7 @@ else
         random_string=$(tr -dc '[:alpha:]' < /dev/urandom 2>/dev/null | head -c 32)
         
         # Execute the upload command
-        upload "$upload_path" "$random_string" "$numberOfReplicas" false
+        upload "$upload_path" "$random_string" "$nrep" false
     done
 fi
 
