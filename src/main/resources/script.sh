@@ -321,14 +321,9 @@ function downloadLFN {
     local size=$(dirac-dms-lfn-metadata ${LFN} | grep Size | sed -r 's/.* ([0-9]+)L,/\1/')
     #local sendReceiveTimeout=`echo ${D}[${D}{size:-0}/${minAvgDownloadThroughput}/1024]`
     #############################
-        # Compute sendReceiveTimeout
-    if [ -z "$size" ]; then
-        size=0
-    fi
-
-    local sendReceiveTimeout=$((size / minAvgDownloadThroughput / 1024))
+    # Compute sendReceiveTimeout
+    local sendReceiveTimeout=$((${size:-0} / ${minAvgDownloadThroughput:-150} / 1024))
     ############################
-    
     if [ "$sendReceiveTimeout" = "" ] || [ $sendReceiveTimeout -le 900 ]
     then
         info "sendReceiveTimeout empty or too small, setting it to 900s"
@@ -521,10 +516,10 @@ function downloadShanoirFile {
 }
 
 function downloadURI {
-
     local URI=$1
     local URI_LOWER=`echo $1 | awk '{print tolower($0)}'`
 
+    startLog file_download uri="${URI}"
 
     if [[ ${URI_LOWER} == lfn* ]] || [[ $URI_LOWER == /* ]]
     then
