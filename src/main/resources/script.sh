@@ -322,7 +322,18 @@ function downloadLFN {
     #local sendReceiveTimeout=`echo ${D}[${D}{size:-0}/${minAvgDownloadThroughput}/1024]`
     #############################
     # Compute sendReceiveTimeout
-    local sendReceiveTimeout=$((${size:-0} / ${minAvgDownloadThroughput:-150} / 1024))
+    #local sendReceiveTimeout=$((${size:-0} / ${minAvgDownloadThroughput:-150} / 1024))
+    minAvgDownloadThroughput=${minAvgDownloadThroughput:-150}
+    size=${size:-0}
+
+    if [[ "$minAvgDownloadThroughput" -ne 0 && "$size" =~ ^[0-9]+$ ]]; then
+        sendReceiveTimeout=$((size / minAvgDownloadThroughput / 1024))
+    else
+        sendReceiveTimeout=0
+    fi
+
+
+
     ############################
     if [ "$sendReceiveTimeout" = "" ] || [ $sendReceiveTimeout -le 900 ]
     then
