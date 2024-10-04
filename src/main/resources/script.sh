@@ -318,21 +318,10 @@ function downloadLFN {
     LFN=$(echo ${LFN} | sed -r -e 's/^lfn://' -e 's#//#/#g')
 
     info "getting file size and computing sendReceiveTimeout"
-    local size=$(dirac-dms-lfn-metadata ${LFN} | grep Size | sed -r 's/.* ([0-9]+)L,/\1/')
-    #local sendReceiveTimeout=`echo ${D}[${D}{size:-0}/${minAvgDownloadThroughput}/1024]`
+    local size=$(dirac-dms-lfn-metadata ${LFN} | grep Size | sed -r 's/.* ([0-9]+),/\1/')
     #############################
-    # Compute sendReceiveTimeout
-    #local sendReceiveTimeout=$((${size:-0} / ${minAvgDownloadThroughput:-150} / 1024))
-    minAvgDownloadThroughput=${minAvgDownloadThroughput:-150}
-    size=${size:-0}
-
-    if [[ "$minAvgDownloadThroughput" -ne 0 && "$size" =~ ^[0-9]+$ ]]; then
-        sendReceiveTimeout=$((size / minAvgDownloadThroughput / 1024))
-    else
-        sendReceiveTimeout=0
-    fi
-
-
+    # Compute sendReceiveTimeout (doing a subbash command with ok to avoid a syntax error to stop the function)
+    local sendReceiveTimeout=$(echo $((${size:-0} / ${minAvgDownloadThroughput:-150} / 1024)))
 
     ############################
     if [ "$sendReceiveTimeout" = "" ] || [ $sendReceiveTimeout -le 900 ]
@@ -1161,8 +1150,6 @@ info "Input download time: ${DOWNLOAD} seconds"
 info "Execution time: $(expr $BEFOREUPLOAD - $AFTERDOWNLOAD) seconds"
 info "Results upload time: ${UPLOAD} seconds"
 info "Exiting with return value 0"
-info "(HACK for ARC: writing it in ${DIAG})"
-echo "exitcode=0" >> ${DIAG}
 exit 0
 
 stopLog footer
